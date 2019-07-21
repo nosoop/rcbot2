@@ -1,4 +1,4 @@
-proj_name = 'RCBot2Meta_i486'
+proj_name = 'RCBot2Meta'
 proj_srcs = [
   "utils/RCBot2_meta/bot.cpp",
   "utils/RCBot2_meta/bot_accessclient.cpp",
@@ -298,23 +298,53 @@ class MMSConfig(object):
           cxx.cxxflags += ['-Wno-expansion-to-defined']
 
     elif cxx.like('msvc'):
-      raise Exception('MSVC builds should use the Visual Studio projects until somebody implements support') # todo: implement MSVC support
+      # raise Exception('MSVC builds should use the Visual Studio projects until somebody implements support') # todo: implement MSVC support
+      if builder.options.debug == '1':
+        cxx.cflags += ['/MTd']
+        cxx.linkflags += ['/NODEFAULTLIB:libcmt']
+      else:
+        cxx.cflags += ['/MT']
+      cxx.defines += [
+        '_CRT_SECURE_NO_DEPRECATE',
+        '_CRT_SECURE_NO_WARNINGS',
+        '_CRT_NONSTDC_NO_DEPRECATE',
+        '_ITERATOR_DEBUG_LEVEL=0',
+        'WIN32',
+        '_WINDOWS'
+      ]
+      cxx.cflags += [
+        '/W3',
+      ]
+      cxx.cxxflags += [
+        '/EHsc',
+        '/GR-',
+        '/TP',
+      ]
+      cxx.linkflags += [
+        '/MACHINE:X86',
+      ]
 
     # Optimization
     if builder.options.opt == '1':
       if cxx.behavior == 'gcc':
         cxx.cflags += proj_c_flags_opt
-      # elif cxx.behavior == 'msvc': # todo: implement MSVC support
+      elif cxx.behavior == 'msvc':
+        cxx.cflags += ['/Ox', '/Zo']
+        cxx.linkflags += ['/OPT:ICF', '/OPT:REF']
 
     # Debugging
     if builder.options.debug == '1':
       cxx.defines += ['_DEBUG']
       if cxx.behavior == 'gcc':
         cxx.cflags += proj_c_flags_dbg
-      # elif cxx.behavior == 'msvc': # todo: implement MSVC support
+      elif cxx.behavior == 'msvc':
+        cxx.cflags += ['/MTd']
+        cxx.linkflags += ['/NODEFAULTLIB:libcmt']
 
     # This needs to be after our optimization flags which could otherwise disable it.
-    # if cxx.family == 'msvc': # todo: implement MSVC support
+	# This needs to be after our optimization flags which could otherwise disable it.
+    if cxx.family == 'msvc':
+      cxx.cflags += ['/Oy-']
 
     # Platform-specifics
     if builder.target.platform == 'linux':
@@ -405,11 +435,12 @@ class MMSConfig(object):
   def AddVersioning(self, binary, arch):
     if builder.target.platform == 'windows':
       # todo: verify this for MSVC support
-      binary.sources += ['version.rc']
-      binary.compiler.rcdefines += [
-        'BINARY_NAME="{0}"'.format(binary.outputFile),
-        'RC_COMPILE'
-      ]
+      #binary.sources += ['version.rc']
+      #binary.compiler.rcdefines += [
+      #  'BINARY_NAME="{0}"'.format(binary.outputFile),
+      #  'RC_COMPILE'
+      #]
+      pass
     elif builder.target.platform == 'mac' and binary.type == 'library':
       binary.compiler.postlink += [
         '-compatibility_version', '1.0.0',
@@ -490,7 +521,7 @@ class MMSConfig(object):
       dynamic_libs = ['libtier0.dylib', 'libvstdlib.dylib']
     elif builder.target.platform == 'windows':
       # todo: verify this for MSVC support
-      libs = ['tier0', 'tier1', 'vstdlib']
+      libs = ['tier0', 'tier1', 'vstdlib', 'mathlib']
       if sdk.name in ['swarm', 'blade', 'insurgency', 'doi', 'csgo', 'dota']:
         libs.append('interfaces')
       if sdk.name == 'bms':
@@ -543,6 +574,8 @@ for sdk_name in MMS.sdks:
 
     # name = proj_name + '.' + sdk.ext
     name = proj_name
+    if builder.target.platform == 'linux':
+      name = proj_name + '_i486'
     binary = MMS.HL2Library(builder, name, sdk, arch)
 
     binary.sources += proj_srcs
