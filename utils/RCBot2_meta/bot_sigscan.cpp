@@ -411,7 +411,7 @@ CEconItemAttributeDefinition *CGetAttributeDefinitionByID::callme(CEconItemSchem
 			mov pret, eax;
 		};
 #else
-		FUNC_GET_ATTRIB_BY_NAME func = (FUNC_GET_ATTRIB_BY_NAME)thefunc;
+		FUNC_SCHEMA_GET_ATTRIB_DEF_BY_ID func = (FUNC_SCHEMA_GET_ATTRIB_DEF_BY_ID)thefunc;
 
 		pret = (void*)func(schema, id);
 #endif

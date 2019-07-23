@@ -279,7 +279,6 @@ class MMSConfig(object):
           '-funswitch-loops',
           '-fgcse-after-reload',
           '-funsafe-math-optimizations',
-          '-fpermissive',
         ]
 
         ## RCBot2: BASE_CFLAGS from Makefile.rcbot2
