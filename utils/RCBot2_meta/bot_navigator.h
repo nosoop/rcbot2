@@ -35,7 +35,6 @@
 
 #include <vector>
 #include <queue>
-using namespace std;
 
 #include "bot.h"
 #include "bot_waypoint.h"
@@ -480,7 +479,7 @@ private:
 	failedpath_t m_lastFailedPath;
 
 	dataStack<int> m_currentRoute;
-	queue<int> m_oldRoute;
+	std::queue<int> m_oldRoute;
 
 	int m_iLastFailedWpt;
 

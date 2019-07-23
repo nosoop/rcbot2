@@ -34,8 +34,6 @@
 #include "bot_ga_nn_const.h"
 #include <vector>
 
-using namespace std;
-
 class IIndividual
 {
 public:
@@ -86,7 +84,7 @@ public:
 	IIndividual *pick ();
 
 private:
-	vector<IIndividual*> m_theIndividuals;
+	std::vector<IIndividual*> m_theIndividuals;
 	CGA *m_ga;
 };
 

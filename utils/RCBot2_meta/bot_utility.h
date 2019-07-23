@@ -37,7 +37,6 @@
 #include "bot_genclass.h"
 
 #include <vector>
-using namespace std;
 
 class CBot;
 class CBotWeapon;
@@ -212,7 +211,7 @@ public:
 	CBotUtility *nextBest ();
 
 private:
-	vector<CBotUtility> m_Utilities;
+	std::vector<CBotUtility> m_Utilities;
 
 	util_list m_pBest;
 };

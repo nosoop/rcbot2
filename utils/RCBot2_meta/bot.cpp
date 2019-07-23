@@ -112,9 +112,9 @@ const float CBot :: m_fAttackLowestLetGoTime = 0.1f;
 const float CBot :: m_fAttackHighestLetGoTime = 0.5f;
 bool CBots :: m_bControlBotsOnly = false;
 bool CBots :: m_bControlNext = false;
-queue<CAddbot> CBots::m_AddBotQueue;
+std::queue<CAddbot> CBots::m_AddBotQueue;
 CBotProfile *CBots :: m_pNextProfile = NULL;
-queue<edict_t*> CBots :: m_ControlQueue;
+std::queue<edict_t*> CBots :: m_ControlQueue;
 char CBots :: m_szNextName[64];
 
 int CBots :: m_iMaxBots = -1;

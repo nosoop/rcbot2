@@ -45,7 +45,7 @@ void CBotGAValues :: init (void)
 	setFitness(0);
 }
 
-CBotGAValues :: CBotGAValues( vector<float> values )
+CBotGAValues :: CBotGAValues( std::vector<float> values )
 {
 	clear();	
 	setFitness(0);
@@ -124,7 +124,7 @@ IIndividual *CBotGAValues :: copy ()
 	return individual;
 }
 
-void CBotGAValues :: setVector ( vector<float> values )
+void CBotGAValues :: setVector ( std::vector<float> values )
 {
 	for ( unsigned int i = 0; i < values.size(); i ++ )
 		m_theValues.push_back(values[i]);

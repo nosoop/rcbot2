@@ -32,7 +32,6 @@
 #define __BOT_COMMANDS_H__
 
 #include <vector>
-using namespace std;
 
 class CClient;
 
@@ -122,7 +121,7 @@ public:
 
 	virtual bool canbeUsedDedicated () { return true; }
 private:
-    vector<CBotCommand*> m_theCommands;
+    std::vector<CBotCommand*> m_theCommands;
 };
 
 /////////////////////////////////////////////////

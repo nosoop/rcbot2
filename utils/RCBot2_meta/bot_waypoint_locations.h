@@ -32,7 +32,6 @@
 #define __RCBOT_WAYPOINT_LOC_H__
 
 //#include <dataUnconstArray>
-//using namespace std;
 
 #include "bot_genclass.h"
 #include "bot_waypoint.h"
@@ -123,7 +122,7 @@ public:
 		}
 	}
 
-	static void GetAllInArea ( Vector &vOrigin, vector <int> *pWaypointList, int iVisibleTo );
+	static void GetAllInArea ( Vector &vOrigin, std::vector <int> *pWaypointList, int iVisibleTo );
 		
 	static void getMinMaxs ( int iLoc, int jLoc, int kLoc, 
 									    int *iMinLoc, int *jMinLoc, int *kMinLoc,

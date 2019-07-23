@@ -46,7 +46,7 @@
 #include "bot_waypoint_locations.h"
 #include "bot_perceptron.h"
 
-vector<edict_wpt_pair_t> CHalfLifeDeathmatchMod::m_LiftWaypoints;
+std::vector<edict_wpt_pair_t> CHalfLifeDeathmatchMod::m_LiftWaypoints;
 
 void CBotMods :: parseFile ()
 {
@@ -381,7 +381,7 @@ eModId CBotMod :: getModId ()
 //
 // MOD LIST
 
-vector<CBotMod*> CBotMods::m_Mods;
+std::vector<CBotMod*> CBotMods::m_Mods;
 
 void CBotMods :: freeMemory ()
 {

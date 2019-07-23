@@ -36,7 +36,6 @@
 #include "bot_utility.h"
 
 //#include <stack>
-//using namespace std;
 
 #define TF2_ROCKETSPEED   1100
 #define TF2_GRENADESPEED  1065 // TF2 wiki
@@ -916,9 +915,9 @@ public:
 
 	bool wantToInvestigateSound ();
 
-	void getDefendArea ( vector<int> *m_iAreas );
+	void getDefendArea ( std::vector<int> *m_iAreas );
 
-	void getAttackArea ( vector <int> *m_iAreas );
+	void getAttackArea ( std::vector<int> *m_iAreas );
 
 	int getCurrentAttackArea () { return m_iCurrentAttackArea; }
 	int getCurrentDefendArea () { return m_iCurrentDefendArea; }
