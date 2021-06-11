@@ -11,7 +11,7 @@ typedef struct
 	int maxwaypoints;
 }wpt_dist_hdr_t;
 
-WaypointRelation CWaypointDistances::m_Distances;
+std::unique_ptr<WaypointRelation> CWaypointDistances::m_Distances = NULL;
 float CWaypointDistances::m_fSaveTime = 0;
 
 void CWaypointDistances :: load ()
@@ -40,7 +40,7 @@ void CWaypointDistances :: load ()
 			
 			for (size_t r = 0; r < CWaypoints::MAX_WAYPOINTS; r++) {
 				for (size_t c = 0; c < CWaypoints::MAX_WAYPOINTS; c++) {
-					m_Distances[r][c] = distances[r][c];
+					(*m_Distances)[r][c] = distances[r][c];
 				}
 			}
 		}
@@ -81,7 +81,7 @@ void CWaypointDistances :: save ()
 			int distances[CWaypoints::MAX_WAYPOINTS][CWaypoints::MAX_WAYPOINTS];
 			for (size_t r = 0; r < CWaypoints::MAX_WAYPOINTS; r++) {
 				for (size_t c = 0; c < CWaypoints::MAX_WAYPOINTS; c++) {
-					distances[r][c] = m_Distances[r][c];
+					distances[r][c] = (*m_Distances)[r][c];
 				}
 			}
 			fwrite(distances,sizeof(int),CWaypoints::MAX_WAYPOINTS * CWaypoints::MAX_WAYPOINTS,bfp);
@@ -95,8 +95,8 @@ void CWaypointDistances :: save ()
 
 float CWaypointDistances :: getDistance ( int iFrom, int iTo )
 {
-	if ( m_Distances[iFrom][iTo] == -1 )
+	if ( (*m_Distances)[iFrom][iTo] == -1 )
 		return (CWaypoints::getWaypoint(iFrom)->getOrigin()-CWaypoints::getWaypoint(iTo)->getOrigin()).Length();
 
-	return (float)m_Distances[iFrom][iTo];
+	return (float) (*m_Distances)[iFrom][iTo];
 }
