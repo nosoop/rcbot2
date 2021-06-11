@@ -11,7 +11,7 @@ typedef struct
 	int maxwaypoints;
 }wpt_dist_hdr_t;
 
-std::array<std::array<int, CWaypoints::MAX_WAYPOINTS>, CWaypoints::MAX_WAYPOINTS> CWaypointDistances::m_Distances;
+WaypointRelation CWaypointDistances::m_Distances;
 float CWaypointDistances::m_fSaveTime = 0;
 
 void CWaypointDistances :: load ()

@@ -8,6 +8,8 @@
 
 #define BOT_WAYPOINT_DST_EXTENSION "rcd"
 
+using WaypointRelation = std::array<std::array<int, CWaypoints::MAX_WAYPOINTS>, CWaypoints::MAX_WAYPOINTS>;
+
 class CWaypointDistances
 {
 public:
@@ -39,7 +41,7 @@ public:
 		}
 	}
 private:
-	static std::array<std::array<int, CWaypoints::MAX_WAYPOINTS>, CWaypoints::MAX_WAYPOINTS> m_Distances;
+	static WaypointRelation m_Distances;
 	static float m_fSaveTime;
 
 };
