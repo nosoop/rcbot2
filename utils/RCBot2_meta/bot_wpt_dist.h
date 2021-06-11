@@ -18,7 +18,7 @@ public:
 	CWaypointDistances()
 	{
 		m_fSaveTime = 0;
-		m_Distances = std::make_unique<WaypointRelation>();
+		m_Distances = std::unique_ptr<WaypointRelation>(new WaypointRelation);
 		reset();
 	}
 
