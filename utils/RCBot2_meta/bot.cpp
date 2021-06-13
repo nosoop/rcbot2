@@ -104,7 +104,7 @@
 //extern void HookPlayerRunCommand ( edict_t *edict );
 
 // instantiate bots -- make different for different mods
-CBot **CBots::m_Bots = NULL;
+std::map<int, CBot*> CBots::m_Bots;
 
 const float CBot :: m_fAttackLowestHoldTime = 0.1f;
 const float CBot :: m_fAttackHighestHoldTime = 0.6f;
@@ -3170,10 +3170,10 @@ int CBots::createDefaultBot(const char* name) {
 
 void CBots :: botFunction ( IBotFunction *function )
 {
-	for ( unsigned int i = 0; i < MAX_PLAYERS; i ++ )
+	for (auto& entry : m_Bots)
 	{
-		if ( m_Bots[i]->inUse() && m_Bots[i]->getEdict() )
-			function->execute (m_Bots[i]);
+		if ( entry.second->inUse() && entry.second->getEdict() )
+			function->execute(entry.second);
 	}
 }
 
@@ -3184,75 +3184,58 @@ int CBots :: slotOfEdict ( edict_t *pEdict )
 
 void CBots :: init ()
 {
-	unsigned int i;
-
-	m_Bots = new CBot*[MAX_PLAYERS];
-	//m_Bots = (CBot**)malloc(sizeof(CBot*) * MAX_PLAYERS);
-
-	for ( i = 0; i < MAX_PLAYERS; i ++ )
+	for (size_t i = 0; i < MAX_PLAYERS; i ++ )
 	{
 		switch ( CBotGlobals::getCurrentMod()->getBotType() )
 		{
 		case BOTTYPE_DOD:
-			m_Bots[i] = new CDODBot();
+			m_Bots[i] = new CDODBot;
 			break;
 		case BOTTYPE_CSS:
-			m_Bots[i] = new CCSSBot();
+			m_Bots[i] = new CCSSBot;
 			break;
 		case BOTTYPE_HL2DM:
-			m_Bots[i] = new CHLDMBot();
+			m_Bots[i] = new CHLDMBot;
 			break;
 		case BOTTYPE_HL1DM:
-			m_Bots[i] = new CHL1DMSrcBot();
+			m_Bots[i] = new CHL1DMSrcBot;
 			break;
 		case BOTTYPE_COOP:
-			m_Bots[i] = new CBotCoop();
+			m_Bots[i] = new CBotCoop;
 			break;
 		case BOTTYPE_TF2:
-			m_Bots[i] = new CBotTF2();//MAX_PLAYERS];
+			m_Bots[i] = new CBotTF2;
 			//CBotGlobals::setEventVersion(2);
 			break;
 		case BOTTYPE_FF:
-			m_Bots[i] = new CBotFF();
+			m_Bots[i] = new CBotFF;
 			break;
 		case BOTTYPE_ZOMBIE:
-			m_Bots[i] = new CBotZombie();
+			m_Bots[i] = new CBotZombie;
 			break;
 		default:
-			m_Bots[i] = new CBot();
+			m_Bots[i] = new CBot;
 			break;
 		}
 	}
 }
 int CBots :: numBots ()
 {
-	static CBot *pBot;
-
 	int iCount = 0;
-
-	for ( short int i = 0; i < MAX_PLAYERS; i ++ )
+	for (const auto& entry : m_Bots)
 	{
-		pBot = m_Bots[i];
-
-		if ( pBot->inUse() )
-			iCount++;		
+		if ( entry.second->inUse() )
+			iCount++;
 	}
-
 	return iCount;
 }
 
 CBot *CBots :: findBotByProfile ( CBotProfile *pProfile )
-{	
-	CBot *pBot = NULL;
-
-	for ( short int i = 0; i < MAX_PLAYERS; i ++ )
+{
+	for (auto& entry : m_Bots)
 	{
-		pBot = m_Bots[i];
-
-		if ( pBot->inUse() )
-		{
-			if ( pBot->isUsingProfile(pProfile) )
-				return pBot;
+		if ( entry.second->inUse() && entry.second->isUsingProfile(pProfile) ) {
+			return entry.second;
 		}
 	}
 	
@@ -3261,14 +3244,11 @@ CBot *CBots :: findBotByProfile ( CBotProfile *pProfile )
 
 void CBots :: runPlayerMoveAll ()
 {
-	static CBot *pBot;
-	for ( short int i = 0; i < MAX_PLAYERS; i ++ )
+	for (auto& entry : m_Bots)
 	{
-		pBot = m_Bots[i];
-
-		if ( pBot->inUse() )
+		if ( entry.second->inUse() )
 		{
-			pBot->runPlayerMove();
+			entry.second->runPlayerMove();
 		}
 	}
 }
@@ -3295,11 +3275,10 @@ void CBots :: botThink ()
 
 #endif
 
-	for ( short int i = 0; i < MAX_PLAYERS; i ++ )
+	for (auto& entry : m_Bots)
 	{
-		pBot = m_Bots[i];
-
-		if ( pBot->inUse() )
+		// TODO early continue;
+		if ( entry.second->inUse() )
 		{
 			if ( !bBotStop )
 			{
@@ -3312,9 +3291,9 @@ void CBots :: botThink ()
 
 				#endif				
 
-				pBot->setMoveLookPriority(MOVELOOK_THINK);
-				pBot->think();
-				pBot->setMoveLookPriority(MOVELOOK_EVENT);
+				entry.second->setMoveLookPriority(MOVELOOK_THINK);
+				entry.second->think();
+				entry.second->setMoveLookPriority(MOVELOOK_EVENT);
 
 				#ifdef _DEBUG
 
@@ -3327,12 +3306,12 @@ void CBots :: botThink ()
 			}
 			if ( bot_command.GetString() && *bot_command.GetString() )
 			{
-				helpers->ClientCommand(pBot->getEdict(),bot_command.GetString());
+				helpers->ClientCommand(entry.second->getEdict(),bot_command.GetString());
 
 				bot_command.SetValue("");
 			}
 
-			pBot->runPlayerMove();
+			entry.second->runPlayerMove();
 		}
 	}
 
@@ -3384,43 +3363,31 @@ CBot* CBots::getBot(int slot) {
 
 void CBots :: freeMapMemory ()
 {
-	if ( m_Bots == NULL )
-		return;
-
 	//bots should have been freed when they disconnected
 	// just incase do this 
-	for ( short int i = 0; i < MAX_PLAYERS; i ++ )
+	for (auto& entry : m_Bots)
 	{
-		if ( m_Bots[i] )
-			m_Bots[i]->freeMapMemory();
+		entry.second->freeMapMemory();
 	}
 }
 
 void CBots :: freeAllMemory ()
 {
-	if ( m_Bots == NULL )
-		return;
-
-	for ( short int i = 0; i < MAX_PLAYERS; i ++ )
+	for (auto& entry : m_Bots)
 	{
-		if ( m_Bots[i] != NULL )
-		{
-			m_Bots[i]->freeAllMemory();
-			delete m_Bots[i];
-			m_Bots[i] = NULL;
-		}
+		entry.second->freeAllMemory();
+		delete entry.second;
 	}
 
-	delete[] m_Bots;
-	m_Bots = NULL;
+	m_Bots.clear();
 }
 
 void CBots :: roundStart ()
 {
-	for ( short int i = 0; i < MAX_PLAYERS; i ++ )
+	for (auto& entry : m_Bots)
 	{
-		if ( m_Bots[i]->inUse() )
-			m_Bots[i]->spawnInit();
+		if ( entry.second->inUse() )
+			entry.second->spawnInit();
 	}
 }
 

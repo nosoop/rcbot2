@@ -69,6 +69,8 @@
 #include <bitset>
 #include <limits>
 
+#include <map>
+
 #if defined WIN32 && !defined snprintf
 #define snprintf _snprintf
 #endif
@@ -1089,7 +1091,8 @@ public:
 	static void runPlayerMoveAll ();
 
 private:
-	static CBot **m_Bots;
+	// associates player slot with bot
+	static std::map<int, CBot*> m_Bots;
 
 	//config
 	static int m_iMaxBots;
