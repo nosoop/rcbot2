@@ -3044,7 +3044,9 @@ bool CBots :: controlBot ( edict_t *pEdict )
 {
 	CBotProfile *pBotProfile = CBotProfiles::getRandomFreeProfile();
 
-	if ( m_Bots[slotOfEdict(pEdict)]->getEdict() == pEdict )
+	int playerSlot = slotOfEdict(pEdict);
+	CBot *bot = getBot(playerSlot);
+	if ( bot && bot->getEdict() == pEdict )
 	{
 		return false;
 	}
@@ -3059,7 +3061,7 @@ bool CBots :: controlBot ( edict_t *pEdict )
 			return false;
 	}
 
-	m_Bots[slotOfEdict(pEdict)]->createBotFromEdict(pEdict,pBotProfile);
+	getBot(playerSlot)->createBotFromEdict(pEdict,pBotProfile);
 
 	return true;
 }
@@ -3080,7 +3082,10 @@ bool CBots :: controlBot ( const char *szOldName, const char *szName, const char
 		return false;
 	}
 
-	if ( m_Bots[slotOfEdict(pEdict)]->getEdict() == pEdict )
+	// TODO create getBotForEdict?
+	int playerSlot = slotOfEdict(pEdict);
+	CBot *bot = getBot(playerSlot);
+	if ( bot && bot->getEdict() == pEdict )
 	{
 		CBotGlobals::botMessage(NULL,0,"already controlling player");
 		return false;
@@ -3111,8 +3116,7 @@ bool CBots :: controlBot ( const char *szOldName, const char *szName, const char
 
 	//IBotController *p = g_pBotManager->GetBotController(pEdict);	
 
-	return m_Bots[slotOfEdict(pEdict)]->createBotFromEdict(pEdict,pBotProfile);
-	
+	return getBot(playerSlot)->createBotFromEdict(pEdict,pBotProfile);
 }
 
 bool CBots :: createBot (const char *szClass, const char *szTeam, const char *szName)
@@ -3148,7 +3152,8 @@ bool CBots :: createBot (const char *szClass, const char *szTeam, const char *sz
 	if ( pEdict == NULL )
 		return false;
 
-	return ( m_Bots[slotOfEdict(pEdict)]->createBotFromEdict(pEdict,pBotProfile) );
+	int playerSlot = slotOfEdict(pEdict);
+	return ( getBot(playerSlot)->createBotFromEdict(pEdict,pBotProfile) );
 }
 
 int CBots::createDefaultBot(const char* name) {
@@ -3162,10 +3167,10 @@ int CBots::createDefaultBot(const char* name) {
 	CBotProfile* pBotProfile = new CBotProfile(*CBotProfiles::getDefaultProfile());
 	pBotProfile->m_szName = CStrings::getString(name);
 
-	int slot = slotOfEdict(pEdict);
-	m_Bots[slot]->createBotFromEdict(pEdict, pBotProfile);
+	int playerSlot = slotOfEdict(pEdict);
+	getBot(playerSlot)->createBotFromEdict(pEdict, pBotProfile);
 
-	return slot;
+	return playerSlot;
 }
 
 void CBots :: botFunction ( IBotFunction *function )
@@ -3184,7 +3189,7 @@ int CBots :: slotOfEdict ( edict_t *pEdict )
 
 void CBots :: init ()
 {
-	for (size_t i = 0; i < MAX_PLAYERS; i ++ )
+	for (int i = 0; i < MAX_PLAYERS; i ++ )
 	{
 		switch ( CBotGlobals::getCurrentMod()->getBotType() )
 		{
@@ -3257,6 +3262,7 @@ void CBots :: runPlayerMoveAll ()
 
 void CBots :: botThink ()
 {
+	// TODO clean this lingering static up
 	static CBot *pBot;
 
 	bool bBotStop = bot_stop.GetInt() > 0;
@@ -3346,7 +3352,7 @@ CBot *CBots :: getBotPointer ( edict_t *pEdict )
 	if ( (slot < 0) || (slot >= MAX_PLAYERS) )
 		return NULL;
 
-	CBot *pBot = m_Bots[slot];
+	CBot *pBot = getBot(slot);
 
 	if ( pBot->inUse() )
 		return pBot;
@@ -3355,9 +3361,11 @@ CBot *CBots :: getBotPointer ( edict_t *pEdict )
 }
 
 CBot* CBots::getBot(int slot) {
-	CBot *pBot = m_Bots[slot];
-	if ( pBot->inUse() )
-		return pBot;
+	for (const auto& entry : m_Bots) {
+		if (slot == entry.first && entry.second->inUse()) {
+			return entry.second;
+		}
+	}
 	return nullptr;
 }
 
