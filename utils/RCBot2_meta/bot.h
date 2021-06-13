@@ -1088,9 +1088,6 @@ public:
 
 	static void runPlayerMoveAll ();
 
-	static CBot *get ( int iIndex ) { return m_Bots[iIndex]; }
-	static CBot *get ( edict_t *pPlayer ) { return m_Bots[slotOfEdict(pPlayer)]; }
-
 private:
 	static CBot **m_Bots;
 

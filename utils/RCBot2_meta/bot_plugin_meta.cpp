@@ -834,9 +834,9 @@ void RCBotPluginMeta::BotQuotaCheck() {
 		// Count Players
 		for (int i = 0; i < MAX_PLAYERS; ++i) {
 			CClient* client = CClients::get(i);
-			CBot* bot = CBots::get(i);
+			CBot* bot = CBots::getBot(i);
 
-			if (bot != NULL && bot->getEdict() != NULL && bot->inUse()) {
+			if (bot != NULL && bot->getEdict() != NULL) {
 				IPlayerInfo *p = playerinfomanager->GetPlayerInfo(bot->getEdict());
 
 				if (p->IsConnected() && p->IsFakeClient() && !p->IsHLTV()) {
