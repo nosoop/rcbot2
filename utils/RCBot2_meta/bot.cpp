@@ -311,6 +311,46 @@ bool CBot :: isUnderWater ()
 	return CClassInterface::getWaterLevel(m_pEdict) > 1; //m_pController->IsEFlagSet(EFL_TOUCHING_FLUID);
 }
 
+CBot* CBots :: allocateBot(int slot) {
+	CBot* allocated = getBot(slot);
+	if (allocated) {
+		return allocated;
+	}
+	
+	switch ( CBotGlobals::getCurrentMod()->getBotType() )
+	{
+	case BOTTYPE_DOD:
+		allocated = new CDODBot;
+		break;
+	case BOTTYPE_CSS:
+		allocated = new CCSSBot;
+		break;
+	case BOTTYPE_HL2DM:
+		allocated = new CHLDMBot;
+		break;
+	case BOTTYPE_HL1DM:
+		allocated = new CHL1DMSrcBot;
+		break;
+	case BOTTYPE_COOP:
+		allocated = new CBotCoop;
+		break;
+	case BOTTYPE_TF2:
+		allocated = new CBotTF2;
+		break;
+	case BOTTYPE_FF:
+		allocated = new CBotFF;
+		break;
+	case BOTTYPE_ZOMBIE:
+		allocated = new CBotZombie;
+		break;
+	default:
+		allocated = new CBot;
+		break;
+	}
+	m_Bots[slot] = allocated;
+	return allocated;
+}
+
 // return false if there is a problem
 bool CBot :: createBotFromEdict(edict_t *pEdict, CBotProfile *pProfile)
 {
@@ -3061,7 +3101,7 @@ bool CBots :: controlBot ( edict_t *pEdict )
 			return false;
 	}
 
-	getBot(playerSlot)->createBotFromEdict(pEdict,pBotProfile);
+	allocateBot(playerSlot)->createBotFromEdict(pEdict,pBotProfile);
 
 	return true;
 }
@@ -3116,7 +3156,7 @@ bool CBots :: controlBot ( const char *szOldName, const char *szName, const char
 
 	//IBotController *p = g_pBotManager->GetBotController(pEdict);	
 
-	return getBot(playerSlot)->createBotFromEdict(pEdict,pBotProfile);
+	return allocateBot(playerSlot)->createBotFromEdict(pEdict,pBotProfile);
 }
 
 bool CBots :: createBot (const char *szClass, const char *szTeam, const char *szName)
@@ -3153,7 +3193,7 @@ bool CBots :: createBot (const char *szClass, const char *szTeam, const char *sz
 		return false;
 
 	int playerSlot = slotOfEdict(pEdict);
-	return ( getBot(playerSlot)->createBotFromEdict(pEdict,pBotProfile) );
+	return ( allocateBot(playerSlot)->createBotFromEdict(pEdict,pBotProfile) );
 }
 
 int CBots::createDefaultBot(const char* name) {
@@ -3168,7 +3208,7 @@ int CBots::createDefaultBot(const char* name) {
 	pBotProfile->m_szName = CStrings::getString(name);
 
 	int playerSlot = slotOfEdict(pEdict);
-	getBot(playerSlot)->createBotFromEdict(pEdict, pBotProfile);
+	allocateBot(playerSlot)->createBotFromEdict(pEdict, pBotProfile);
 
 	return playerSlot;
 }
@@ -3191,37 +3231,7 @@ void CBots :: init ()
 {
 	for (int i = 0; i < MAX_PLAYERS; i ++ )
 	{
-		switch ( CBotGlobals::getCurrentMod()->getBotType() )
-		{
-		case BOTTYPE_DOD:
-			m_Bots[i] = new CDODBot;
-			break;
-		case BOTTYPE_CSS:
-			m_Bots[i] = new CCSSBot;
-			break;
-		case BOTTYPE_HL2DM:
-			m_Bots[i] = new CHLDMBot;
-			break;
-		case BOTTYPE_HL1DM:
-			m_Bots[i] = new CHL1DMSrcBot;
-			break;
-		case BOTTYPE_COOP:
-			m_Bots[i] = new CBotCoop;
-			break;
-		case BOTTYPE_TF2:
-			m_Bots[i] = new CBotTF2;
-			//CBotGlobals::setEventVersion(2);
-			break;
-		case BOTTYPE_FF:
-			m_Bots[i] = new CBotFF;
-			break;
-		case BOTTYPE_ZOMBIE:
-			m_Bots[i] = new CBotZombie;
-			break;
-		default:
-			m_Bots[i] = new CBot;
-			break;
-		}
+		// allocateBot(i);
 	}
 }
 int CBots :: numBots ()
@@ -3354,7 +3364,7 @@ CBot *CBots :: getBotPointer ( edict_t *pEdict )
 
 	CBot *pBot = getBot(slot);
 
-	if ( pBot->inUse() )
+	if ( pBot && pBot->inUse() )
 		return pBot;
 
 	return NULL;

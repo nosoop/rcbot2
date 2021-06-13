@@ -1090,6 +1090,8 @@ public:
 
 	static void runPlayerMoveAll ();
 
+	static CBot *allocateBot(int slot);
+
 private:
 	// associates player slot with bot
 	static std::map<int, CBot*> m_Bots;

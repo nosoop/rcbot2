@@ -1023,6 +1023,7 @@ void CClient :: clientDisconnected ()
 		if ( pBot->inUse() )
 		{
 			// free bots memory and other stuff
+			// TODO mark bot as freed in CBots::m_Bots and sweep when not processing
 			pBot->freeAllMemory();
 		}
 	}
