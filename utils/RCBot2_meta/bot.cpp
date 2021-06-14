@@ -105,6 +105,7 @@
 
 // instantiate bots -- make different for different mods
 std::map<int, CBot*> CBots::m_Bots;
+std::queue<CBot*> CBots::m_BotsPendingCleanup;
 
 const float CBot :: m_fAttackLowestHoldTime = 0.1f;
 const float CBot :: m_fAttackHighestHoldTime = 0.6f;
@@ -3490,6 +3491,34 @@ void CBots :: kickRandomBotOnTeam ( int team )
 	m_flAddKickBotTime = engine->Time() + 2.0f;
 
 	engine->ServerCommand(szCommand);
+}
+
+/**
+ * Moves a bot whose client has disconnected into the 'pending cleanup' queue.
+ * 
+ * This ensures that bots being ejected in the middle of running their logic don't take down
+ * the server.
+ */
+void CBots :: disconnectBot(int slot) {
+	if (!m_Bots.count(slot)) {
+		return;
+	}
+	
+	m_BotsPendingCleanup.push(m_Bots[slot]);
+	m_Bots.erase(slot);
+}
+
+/**
+ * Finally clean up bots whose clients have disconnected.
+ */
+void CBots :: cleanupBots() {
+	while (!m_BotsPendingCleanup.empty()) {
+		CBot *bot = m_BotsPendingCleanup.front();
+		bot->freeAllMemory();
+		
+		delete bot;
+		m_BotsPendingCleanup.pop();
+	}
 }
 
 const std::map<int, CBot*>& CBots :: getBotMappingInternal() {

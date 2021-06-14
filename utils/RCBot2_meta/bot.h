@@ -1091,6 +1091,8 @@ public:
 	static void runPlayerMoveAll ();
 
 	static CBot *allocateBot(int slot);
+	static void disconnectBot(int slot);
+	static void cleanupBots();
 
 	// for debugging only
 	static const std::map<int, CBot*>& getBotMappingInternal();
@@ -1098,6 +1100,7 @@ public:
 private:
 	// associates player slot with bot
 	static std::map<int, CBot*> m_Bots;
+	static std::queue<CBot*> m_BotsPendingCleanup;
 
 	//config
 	static int m_iMaxBots;

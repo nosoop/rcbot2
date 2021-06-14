@@ -805,6 +805,9 @@ void RCBotPluginMeta::Hook_GameFrame(bool simulating)
 		if (rcbot_bot_quota_interval.GetInt() > 0) {
 			BotQuotaCheck();
 		}
+
+		// clean up bots that have been disconnected
+		CBots::cleanupBots();
 	}
 }
 

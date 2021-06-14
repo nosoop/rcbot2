@@ -1015,19 +1015,6 @@ void CClient :: updateCurrentWaypoint ()
 // this player disconnects
 void CClient :: clientDisconnected ()
 {
-	// is bot?
-	CBot *pBot = CBots::getBotPointer(m_pPlayer);
-
-	if ( pBot != NULL )
-	{
-		if ( pBot->inUse() )
-		{
-			// free bots memory and other stuff
-			// TODO mark bot as freed in CBots::m_Bots and sweep when not processing
-			pBot->freeAllMemory();
-		}
-	}
-
 	if ( !engine->IsDedicatedServer() )
 	{
 		if ( CClients::isListenServerClient(this) )
@@ -1092,6 +1079,8 @@ void CClients :: init ( edict_t *pPlayer )
 void CClients :: clientDisconnected ( edict_t *pPlayer )
 {
 	CClient *pClient = &m_Clients[slotOfEdict(pPlayer)];
+
+	CBots::disconnectBot(slotOfEdict(pPlayer));
 
 	pClient->clientDisconnected();
 }
