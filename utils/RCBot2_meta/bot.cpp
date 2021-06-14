@@ -3491,6 +3491,11 @@ void CBots :: kickRandomBotOnTeam ( int team )
 
 	engine->ServerCommand(szCommand);
 }
+
+const std::map<int, CBot*>& CBots :: getBotMappingInternal() {
+	return m_Bots;
+}
+
 ////////////////////////
 
 CBotLastSee :: CBotLastSee ( edict_t *pEdict )

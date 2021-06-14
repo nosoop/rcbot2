@@ -852,6 +852,20 @@ CBotCommandInline DebugMstrOffsetSearch("mstr_offset_search", CMD_ACCESS_DEBUG, 
 	return COMMAND_ACCESSED;
 }, "usage \"mstr_offset_search\" must be run on cp_dustbowl only");
 
+CBotCommandInline DumpBotMapping("dump_bot_mapping", CMD_ACCESS_DEBUG | CMD_ACCESS_DEDICATED, [](CClient *pClient, BotCommandArgs args)
+{
+	edict_t *pEntity = NULL;
+
+	if ( pClient )
+		pEntity = pClient->getPlayer();
+
+	for (const auto& entry : CBots::getBotMappingInternal()) {
+		CBotGlobals::botMessage(pEntity, 0, "slot %d occupied (in use? %d)",
+				entry.first, entry.second->inUse());
+	}
+	return COMMAND_ACCESSED;
+}, "usage \"dump_bot_mapping");
+
 CBotSubcommands DebugSubcommands("debug", CMD_ACCESS_DEBUG | CMD_ACCESS_DEDICATED, {
 	&DebugGameEventCommand,
 	&DebugBotCommand,
@@ -881,4 +895,5 @@ CBotSubcommands DebugSubcommands("debug", CMD_ACCESS_DEBUG | CMD_ACCESS_DEDICATE
 	&DebugMemoryScanCommand,
 	&DebugMemoryCheckCommand,
 	&DebugMstrOffsetSearch,
+	&DumpBotMapping,
 });

@@ -1092,6 +1092,9 @@ public:
 
 	static CBot *allocateBot(int slot);
 
+	// for debugging only
+	static const std::map<int, CBot*>& getBotMappingInternal();
+
 private:
 	// associates player slot with bot
 	static std::map<int, CBot*> m_Bots;
