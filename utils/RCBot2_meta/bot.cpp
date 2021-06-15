@@ -3441,10 +3441,10 @@ void CBots :: kickRandomBot (size_t count)
 	std::vector<int> botList;
 	char szCommand[512];
 	//gather list of bots
-	for ( size_t i = 0; i < MAX_PLAYERS; i ++ )
+	for (const auto& entry : m_Bots)
 	{
-		if ( m_Bots[i]->inUse() )
-			botList.push_back(m_Bots[i]->getPlayerID());
+		if ( entry.second->inUse() )
+			botList.push_back(entry.second->getPlayerID());
 	}
 
 	if ( botList.empty() )
@@ -3472,11 +3472,11 @@ void CBots :: kickRandomBotOnTeam ( int team )
 	std::vector<int> botList;
 	char szCommand[512];
 	//gather list of bots
-	for ( short int i = 0; i < MAX_PLAYERS; i ++ )
+	for (const auto& entry : m_Bots)
 	{
-		if ( m_Bots[i]->inUse() && m_Bots[i]->getTeam() == team )
+		if ( entry.second->inUse() && entry.second->getTeam() == team )
 		{
-			botList.push_back(m_Bots[i]->getPlayerID());
+			botList.push_back(entry.second->getPlayerID());
 		}
 	}
 
